@@ -1,0 +1,183 @@
+local player = game.Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = playerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0.4, 0, 0.6, 0)
+mainFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+mainFrame.Visible = false
+mainFrame.Parent = screenGui
+
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 250, 0, 60)
+toggleButton.Position = UDim2.new(0.5, -125, 0.9, -30)
+toggleButton.Text = "Toggle Frame"
+toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.Parent = screenGui
+
+local categories = {"Teleport", "Tool", "Basic", "Updates", "Music", "Credits", "Addons"}
+
+local categoriesFrame = Instance.new("Frame")
+categoriesFrame.Size = UDim2.new(0.3, 0, 1, 0)
+categoriesFrame.Position = UDim2.new(0, 0, 0, 0)
+categoriesFrame.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+categoriesFrame.Parent = mainFrame
+
+local categoryButtons = {}
+for i, category in ipairs(categories) do
+    local categoryButton = Instance.new("TextButton")
+    categoryButton.Size = UDim2.new(1, 0, 0, 60)
+    categoryButton.Position = UDim2.new(0, 0, 0, (i - 1) * 70)
+    categoryButton.Text = category
+    categoryButton.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+    categoryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    categoryButton.Font = Enum.Font.Gotham
+    categoryButton.TextSize = 18
+    categoryButton.Parent = categoriesFrame
+    categoryButtons[category] = categoryButton
+end
+
+local contentFrames = {}
+local scrollFrames = {}
+
+for i, category in ipairs(categories) do
+    local contentFrame = Instance.new("Frame")
+    contentFrame.Size = UDim2.new(0.7, 0, 1, 0)
+    contentFrame.Position = UDim2.new(0.3, 0, 0, 0)
+    contentFrame.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
+    contentFrame.Visible = false
+    contentFrame.Parent = mainFrame
+
+    local scrollFrame = Instance.new("ScrollingFrame")
+    scrollFrame.Size = UDim2.new(1, 0, 1, 0)
+    scrollFrame.BackgroundTransparency = 1
+    scrollFrame.Parent = contentFrame
+    scrollFrame.CanvasSize = UDim2.new(0, 0, 2.5, 0)  
+
+    local label = Instance.new("TextLabel")
+    label.Size = UDim2.new(1, 0, 0, 50)
+    label.Text = category .. " Content"
+    label.TextColor3 = Color3.fromRGB(255, 255, 255)
+    label.BackgroundTransparency = 1
+    label.TextSize = 24
+    label.Parent = scrollFrame
+
+    contentFrames[category] = contentFrame
+    scrollFrames[category] = scrollFrame
+end
+
+contentFrames["Basic"].Visible = true
+
+local function onCategoryButtonClicked(category)
+    for _, frame in pairs(contentFrames) do
+        frame.Visible = false
+    end
+    
+    contentFrames[category].Visible = true
+end
+
+categoryButtons["Teleport"].MouseButton1Click:Connect(function()
+    onCategoryButtonClicked("Teleport")
+end)
+
+categoryButtons["Tool"].MouseButton1Click:Connect(function()
+    onCategoryButtonClicked("Tool")
+end)
+
+categoryButtons["Basic"].MouseButton1Click:Connect(function()
+    onCategoryButtonClicked("Basic")
+end)
+
+categoryButtons["Updates"].MouseButton1Click:Connect(function()
+    onCategoryButtonClicked("Updates")
+end)
+
+categoryButtons["Music"].MouseButton1Click:Connect(function()
+    onCategoryButtonClicked("Music")
+end)
+
+categoryButtons["Credits"].MouseButton1Click:Connect(function()
+    onCategoryButtonClicked("Credits")
+end)
+
+categoryButtons["Addons"].MouseButton1Click:Connect(function()
+    onCategoryButtonClicked("Addons")
+end)
+
+toggleButton.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+end)
+
+
+local espButton = Instance.new("TextButton")
+espButton.Size = UDim2.new(1, 0, 0, 60)
+espButton.Position = UDim2.new(0, 0, 0, 60)  
+espButton.Text = "Toggle ESP"
+espButton.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
+espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+espButton.Font = Enum.Font.Gotham
+espButton.TextSize = 18
+espButton.Parent = scrollFrames["Tool"]  
+
+local players = game:GetService("Players")
+local localPlayer = players.LocalPlayer
+local espEnabled = false
+
+local function toggleESP()
+    espEnabled = not espEnabled
+    espButton.Text = espEnabled and "Disable ESP" or "Enable ESP"
+
+    for _, player in pairs(players:GetPlayers()) do
+        if player ~= localPlayer then
+            local character = player.Character or player.CharacterAdded:Wait()
+            local highlight = character:FindFirstChild("ESPHighlight")
+            if espEnabled then
+                if not highlight then
+                    highlight = Instance.new("Highlight")
+                    highlight.Name = "ESPHighlight"
+                    highlight.Parent = character
+                    highlight.FillTransparency = 0.5
+                    highlight.OutlineTransparency = 0.3
+                    if player.Team then
+                        highlight.FillColor = player.Team.TeamColor.Color
+                        highlight.OutlineColor = player.Team.TeamColor.Color
+                    else
+                        highlight.FillColor = Color3.new(1, 1, 1)
+                        highlight.OutlineColor = Color3.new(1, 1, 1)
+                    end
+                end
+            else
+                if highlight then
+                    highlight:Destroy()
+                end
+            end
+        end
+    end
+end
+
+espButton.MouseButton1Click:Connect(toggleESP)
+
+local creditsFrame = contentFrames["Credits"]
+local creditsLabel1 = Instance.new("TextLabel")
+creditsLabel1.Size = UDim2.new(1, 0, 0, 60)
+creditsLabel1.Position = UDim2.new(0, 0, 0.2, 0)
+creditsLabel1.Text = "Wiet_ilove"
+creditsLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
+creditsLabel1.Font = Enum.Font.Gotham
+creditsLabel1.TextSize = 36
+creditsLabel1.BackgroundTransparency = 1
+creditsLabel1.Parent = creditsFrame
+
+local creditsLabel2 = Instance.new("TextLabel")
+creditsLabel2.Size = UDim2.new(1, 0, 0, 60)
+creditsLabel2.Position = UDim2.new(0, 0, 0.3, 0)
+creditsLabel2.Text = "Karpernaat"
+creditsLabel2.TextColor3 = Color3.fromRGB(255, 255, 255)
+creditsLabel2.Font = Enum.Font.Gotham
+creditsLabel2.TextSize = 36
+creditsLabel2.BackgroundTransparency = 1
+creditsLabel2.Parent = creditsFrame
