@@ -1,183 +1,131 @@
-local player = game.Players.LocalPlayer
-local playerGui = player:WaitForChild("PlayerGui")
+local locations = {
+    ["Locked Room"] = Vector3.new(849.1178, 4.9615, 33.7320),
+    ["Safe Room"] = Vector3.new(851.4938, 4.9615, 53.4700),
+    ["Workshop"] = Vector3.new(1094.8464, 4.9615, -104.2560),
+    ["Shower"] = Vector3.new(966.5880, 4.9612, 163.4133),
+    ["Bank"] = Vector3.new(923.0752, 2.7887, 2587.3970),
+    ["Gun Store"] = Vector3.new(959.0245, 2.7594, 2041.5341),
+    ["Jewelry"] = Vector3.new(780.1634, 2.7594, 1979.9706),
+    ["Sewers"] = Vector3.new(978.0411, -36.9342, -144.3094),
+    ["Criminal Base"] = Vector3.new(1439.2709, 2.1883, 2279.4336),
+    ["Laundry"] = Vector3.new(784.9811, 4.9615, -77.2798),
+    ["Mines"] = Vector3.new(839.2888, 4.0210, -206.3448),
+    ["Storage Room"] = Vector3.new(800.0358, 4.9615, 84.2681),
+    ["Bounty"] = Vector3.new(1010.2386, 4.3650, -91.2799),
+    ["Warden"] = Vector3.new(785.4076, 4.9624, 42.6731),
+}
 
 local screenGui = Instance.new("ScreenGui")
-screenGui.Parent = playerGui
+screenGui.Name = "TeleportGui"
+screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
 
 local mainFrame = Instance.new("Frame")
 mainFrame.Size = UDim2.new(0.4, 0, 0.6, 0)
-mainFrame.Position = UDim2.new(0.05, 0, 0.2, 0)
-mainFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-mainFrame.Visible = false
+mainFrame.Position = UDim2.new(0.3, 0, 0.2, 0)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Draggable = true
 mainFrame.Parent = screenGui
 
-local toggleButton = Instance.new("TextButton")
-toggleButton.Size = UDim2.new(0, 250, 0, 60)
-toggleButton.Position = UDim2.new(0.5, -125, 0.9, -30)
-toggleButton.Text = "Toggle Frame"
-toggleButton.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-toggleButton.Parent = screenGui
+local tabBar = Instance.new("Frame")
+tabBar.Size = UDim2.new(1, 0, 0.1, 0)
+tabBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+tabBar.BorderSizePixel = 0
+tabBar.Parent = mainFrame
 
-local categories = {"Teleport", "Tool", "Basic", "Updates", "Music", "Credits", "Addons"}
+local scrollFrame = Instance.new("ScrollingFrame")
+scrollFrame.Size = UDim2.new(1, 0, 0.9, 0)
+scrollFrame.Position = UDim2.new(0, 0, 0.1, 0)
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 1000)
+scrollFrame.ScrollBarThickness = 5
+scrollFrame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+scrollFrame.BorderSizePixel = 0
+scrollFrame.Parent = mainFrame
 
-local categoriesFrame = Instance.new("Frame")
-categoriesFrame.Size = UDim2.new(0.3, 0, 1, 0)
-categoriesFrame.Position = UDim2.new(0, 0, 0, 0)
-categoriesFrame.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
-categoriesFrame.Parent = mainFrame
+local yOffset = 0
+for locationName, position in pairs(locations) do
+    local button = Instance.new("TextButton")
+    button.Size = UDim2.new(0.9, 0, 0, 40)
+    button.Position = UDim2.new(0.05, 0, 0, yOffset)
+    button.Text = locationName
+    button.Font = Enum.Font.Gotham
+    button.TextSize = 16
+    button.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.Parent = scrollFrame
+    yOffset = yOffset + 50
 
-local categoryButtons = {}
-for i, category in ipairs(categories) do
-    local categoryButton = Instance.new("TextButton")
-    categoryButton.Size = UDim2.new(1, 0, 0, 60)
-    categoryButton.Position = UDim2.new(0, 0, 0, (i - 1) * 70)
-    categoryButton.Text = category
-    categoryButton.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
-    categoryButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    categoryButton.Font = Enum.Font.Gotham
-    categoryButton.TextSize = 18
-    categoryButton.Parent = categoriesFrame
-    categoryButtons[category] = categoryButton
-end
-
-local contentFrames = {}
-local scrollFrames = {}
-
-for i, category in ipairs(categories) do
-    local contentFrame = Instance.new("Frame")
-    contentFrame.Size = UDim2.new(0.7, 0, 1, 0)
-    contentFrame.Position = UDim2.new(0.3, 0, 0, 0)
-    contentFrame.BackgroundColor3 = Color3.fromRGB(100, 100, 100)
-    contentFrame.Visible = false
-    contentFrame.Parent = mainFrame
-
-    local scrollFrame = Instance.new("ScrollingFrame")
-    scrollFrame.Size = UDim2.new(1, 0, 1, 0)
-    scrollFrame.BackgroundTransparency = 1
-    scrollFrame.Parent = contentFrame
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 2.5, 0)  
-
-    local label = Instance.new("TextLabel")
-    label.Size = UDim2.new(1, 0, 0, 50)
-    label.Text = category .. " Content"
-    label.TextColor3 = Color3.fromRGB(255, 255, 255)
-    label.BackgroundTransparency = 1
-    label.TextSize = 24
-    label.Parent = scrollFrame
-
-    contentFrames[category] = contentFrame
-    scrollFrames[category] = scrollFrame
-end
-
-contentFrames["Basic"].Visible = true
-
-local function onCategoryButtonClicked(category)
-    for _, frame in pairs(contentFrames) do
-        frame.Visible = false
-    end
-    
-    contentFrames[category].Visible = true
-end
-
-categoryButtons["Teleport"].MouseButton1Click:Connect(function()
-    onCategoryButtonClicked("Teleport")
-end)
-
-categoryButtons["Tool"].MouseButton1Click:Connect(function()
-    onCategoryButtonClicked("Tool")
-end)
-
-categoryButtons["Basic"].MouseButton1Click:Connect(function()
-    onCategoryButtonClicked("Basic")
-end)
-
-categoryButtons["Updates"].MouseButton1Click:Connect(function()
-    onCategoryButtonClicked("Updates")
-end)
-
-categoryButtons["Music"].MouseButton1Click:Connect(function()
-    onCategoryButtonClicked("Music")
-end)
-
-categoryButtons["Credits"].MouseButton1Click:Connect(function()
-    onCategoryButtonClicked("Credits")
-end)
-
-categoryButtons["Addons"].MouseButton1Click:Connect(function()
-    onCategoryButtonClicked("Addons")
-end)
-
-toggleButton.MouseButton1Click:Connect(function()
-    mainFrame.Visible = not mainFrame.Visible
-end)
-
-
-local espButton = Instance.new("TextButton")
-espButton.Size = UDim2.new(1, 0, 0, 60)
-espButton.Position = UDim2.new(0, 0, 0, 60)  
-espButton.Text = "Toggle ESP"
-espButton.BackgroundColor3 = Color3.fromRGB(90, 90, 90)
-espButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-espButton.Font = Enum.Font.Gotham
-espButton.TextSize = 18
-espButton.Parent = scrollFrames["Tool"]  
-
-local players = game:GetService("Players")
-local localPlayer = players.LocalPlayer
-local espEnabled = false
-
-local function toggleESP()
-    espEnabled = not espEnabled
-    espButton.Text = espEnabled and "Disable ESP" or "Enable ESP"
-
-    for _, player in pairs(players:GetPlayers()) do
-        if player ~= localPlayer then
-            local character = player.Character or player.CharacterAdded:Wait()
-            local highlight = character:FindFirstChild("ESPHighlight")
-            if espEnabled then
-                if not highlight then
-                    highlight = Instance.new("Highlight")
-                    highlight.Name = "ESPHighlight"
-                    highlight.Parent = character
-                    highlight.FillTransparency = 0.5
-                    highlight.OutlineTransparency = 0.3
-                    if player.Team then
-                        highlight.FillColor = player.Team.TeamColor.Color
-                        highlight.OutlineColor = player.Team.TeamColor.Color
-                    else
-                        highlight.FillColor = Color3.new(1, 1, 1)
-                        highlight.OutlineColor = Color3.new(1, 1, 1)
-                    end
-                end
-            else
-                if highlight then
-                    highlight:Destroy()
-                end
-            end
+    button.MouseButton1Click:Connect(function()
+        local player = game.Players.LocalPlayer
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = CFrame.new(position)
         end
-    end
+    end)
 end
 
-espButton.MouseButton1Click:Connect(toggleESP)
+local playerTeleportFrame = Instance.new("Frame")
+playerTeleportFrame.Size = UDim2.new(1, 0, 0, 50)
+playerTeleportFrame.Position = UDim2.new(0, 0, 0, yOffset)
+playerTeleportFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+playerTeleportFrame.BorderSizePixel = 0
+playerTeleportFrame.Parent = scrollFrame
+yOffset = yOffset + 50
 
-local creditsFrame = contentFrames["Credits"]
-local creditsLabel1 = Instance.new("TextLabel")
-creditsLabel1.Size = UDim2.new(1, 0, 0, 60)
-creditsLabel1.Position = UDim2.new(0, 0, 0.2, 0)
-creditsLabel1.Text = "Wiet_ilove"
-creditsLabel1.TextColor3 = Color3.fromRGB(255, 255, 255)
-creditsLabel1.Font = Enum.Font.Gotham
-creditsLabel1.TextSize = 36
-creditsLabel1.BackgroundTransparency = 1
-creditsLabel1.Parent = creditsFrame
+local playerTextBox = Instance.new("TextBox")
+playerTextBox.Size = UDim2.new(0.6, 0, 1, 0)
+playerTextBox.Position = UDim2.new(0.05, 0, 0, 0)
+playerTextBox.PlaceholderText = "Enter Player Name"
+playerTextBox.Text = ""
+playerTextBox.Font = Enum.Font.Gotham
+playerTextBox.TextSize = 16
+playerTextBox.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+playerTextBox.TextColor3 = Color3.fromRGB(255, 255, 255)
+playerTextBox.Parent = playerTeleportFrame
 
-local creditsLabel2 = Instance.new("TextLabel")
-creditsLabel2.Size = UDim2.new(1, 0, 0, 60)
-creditsLabel2.Position = UDim2.new(0, 0, 0.3, 0)
-creditsLabel2.Text = "Karpernaat"
-creditsLabel2.TextColor3 = Color3.fromRGB(255, 255, 255)
-creditsLabel2.Font = Enum.Font.Gotham
-creditsLabel2.TextSize = 36
-creditsLabel2.BackgroundTransparency = 1
-creditsLabel2.Parent = creditsFrame
+local playerTeleportButton = Instance.new("TextButton")
+playerTeleportButton.Size = UDim2.new(0.3, 0, 1, 0)
+playerTeleportButton.Position = UDim2.new(0.7, 0, 0, 0)
+playerTeleportButton.Text = "Teleport"
+playerTeleportButton.Font = Enum.Font.Gotham
+playerTeleportButton.TextSize = 16
+playerTeleportButton.BackgroundColor3 = Color3.fromRGB(70, 70, 70)
+playerTeleportButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+playerTeleportButton.Parent = playerTeleportFrame
+
+playerTeleportButton.MouseButton1Click:Connect(function()
+    local playerName = playerTextBox.Text
+    local targetPlayer = game.Players:FindFirstChild(playerName)
+    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChild("HumanoidRootPart") then
+        local player = game.Players.LocalPlayer
+        if player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+            player.Character.HumanoidRootPart.CFrame = targetPlayer.Character.HumanoidRootPart.CFrame
+        end
+    else
+        warn("Player not found or invalid!")
+    end
+end)
+
+scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
+
+local categories = {"Teleports"}
+
+for i, category in ipairs(categories) do
+    local tabButton = Instance.new("TextButton")
+    tabButton.Size = UDim2.new(0.3, -10, 1, 0)
+    tabButton.Position = UDim2.new((i - 1) * 0.33, 0, 0, 0)
+    tabButton.Text = category
+    tabButton.Font = Enum.Font.GothamBold
+    tabButton.TextSize = 14
+    tabButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    tabButton.Parent = tabBar
+
+    tabButton.MouseButton1Click:Connect(function()
+        if category == "Teleports" then
+            scrollFrame.Visible = true
+        else
+            scrollFrame.Visible = false
+        end
+    end)
+end
