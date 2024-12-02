@@ -13,7 +13,14 @@ local locations = {
     ["Storage Room"] = Vector3.new(800.0358, 4.9615, 84.2681),
     ["Bounty"] = Vector3.new(1010.2386, 4.3650, -91.2799),
     ["Warden"] = Vector3.new(785.4076, 4.9624, 42.6731),
-    ["Medical Hall"] = Vector3.new(780.0376, 4.9634, -125.7404),  -- New location added
+    ["Medical Hall"] = Vector3.new(780.0376, 4.9634, -125.7404),
+    ["Guard Room"] = Vector3.new(758.0598, 4.9644, -40.0551),
+    ["Roof Access"] = Vector3.new(1065.2964, 36.4041, 0.8127),
+    ["Commissary"] = Vector3.new(942.0894, 4.4035, -7.5448),
+    ["Roof"] = Vector3.new(1064.2952, 51.0256, -0.4145),
+    ["Front Gate"] = Vector3.new(877.4751, 5.1691, 383.3972),
+    ["Escape"] = Vector3.new(851.1135, 2.1294, 510.5233),
+    ["Incinerator"] = Vector3.new(1034.7648, 4.9633, 159.4439),
 }
 
 local screenGui = Instance.new("ScreenGui")
@@ -109,24 +116,3 @@ end)
 
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
 
-local categories = {"Teleports", "Basic", "Tools"}
-
-for i, category in ipairs(categories) do
-    local tabButton = Instance.new("TextButton")
-    tabButton.Size = UDim2.new(0.3, -10, 1, 0)
-    tabButton.Position = UDim2.new((i - 1) * 0.33, 0, 0, 0)
-    tabButton.Text = category
-    tabButton.Font = Enum.Font.GothamBold
-    tabButton.TextSize = 14
-    tabButton.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
-    tabButton.TextColor3 = Color3.fromRGB(255, 255, 255)
-    tabButton.Parent = tabBar
-
-    tabButton.MouseButton1Click:Connect(function()
-        if category == "Teleports" then
-            scrollFrame.Visible = true
-        else
-            scrollFrame.Visible = false
-        end
-    end)
-end
