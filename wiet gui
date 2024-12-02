@@ -21,6 +21,7 @@ local locations = {
     ["Front Gate"] = Vector3.new(877.4751, 5.1691, 383.3972),
     ["Escape"] = Vector3.new(851.1135, 2.1294, 510.5233),
     ["Incinerator"] = Vector3.new(1034.7648, 4.9633, 159.4439),
+    ["House"] = Vector3.new(773.010498046875, 4.705239772796631, 2101.1611328125)
 }
 
 local screenGui = Instance.new("ScreenGui")
@@ -115,4 +116,3 @@ playerTeleportButton.MouseButton1Click:Connect(function()
 end)
 
 scrollFrame.CanvasSize = UDim2.new(0, 0, 0, yOffset)
-
